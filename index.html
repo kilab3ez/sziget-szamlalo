@@ -6,9 +6,10 @@
 <title>Mennyi ideje nem kaptunk fizetést? · Sziget Fesztivál</title>
 <meta name="description" content="Élő számláló: mennyi ideje nem kaptunk fizetést a Sziget Fesztiválon vállalt munkánkért." />
 
+
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@500;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@500;700&family=Titan+One&display=swap" rel="stylesheet" />
 
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -39,7 +40,7 @@
     overflow-x: hidden;
   }
 
-  /* —— neon fények a háttérben —— */
+  
   body::before {
     content: "";
     position: fixed;
@@ -53,7 +54,7 @@
     animation: drift 22s ease-in-out infinite alternate;
   }
 
-  /* —— vignetta —— */
+  
   body::after {
     content: "";
     position: fixed;
@@ -77,7 +78,7 @@
     gap: clamp(1rem, 3vh, 2.2rem);
   }
 
-  /* —— felső badge —— */
+  
   .badge {
     display: inline-flex;
     align-items: center;
@@ -109,7 +110,7 @@
     50%      { opacity: .3;  transform: scale(.75); }
   }
 
-  /* —— főcím —— */
+ 
   h1 {
     max-width: 22ch;
     font-weight: 400;
@@ -125,7 +126,18 @@
     filter: drop-shadow(0 0 28px rgba(255, 45, 149, .45));
   }
 
-  /* —— számláló rács —— */
+  
+  .sziget-font {
+    font-family: 'Titan One', 'Anton', sans-serif;
+    font-weight: 400;
+    font-size: 1.15em; 
+    display: inline-block;
+    padding: 0 0.05em; 
+    vertical-align: middle;
+    letter-spacing: 0.02em;
+  }
+
+
   .timer {
     width: 100%;
     display: grid;
@@ -168,12 +180,20 @@
     text-shadow: 0 0 24px var(--glow), 0 0 70px var(--glow);
   }
 
-  .num.tick { animation: tick .35s ease-out; }
+  /* —— ÁTTŰNÉSES ANIMÁCIÓ A SZÁMOKHOZ —— */
+  .num.fade-in {
+    animation: fadeIn 0.4s ease-out;
+  }
 
-  @keyframes tick {
-    0%   { transform: scale(1); }
-    40%  { transform: scale(1.12); }
-    100% { transform: scale(1); }
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+      transform: translateY(10px) scale(0.95);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
   }
 
   .label {
@@ -219,9 +239,9 @@
 
 <body>
   <main>
-    <span class="badge"><span class="dot"></span>Még mindig nem fizettek</span>
+    <span class="badge"><span class="dot"></span>Még mindig nem figyel a pénz a számlán</span>
 
-    <h1>Mennyi ideje nem kaptunk fizetést a Sziget&nbsp;Fesztiválon vállalt munkánkért?</h1>
+    <h1>Mennyi ideje nem kaptunk fizetést a <span class="sziget-font">SZIGET Fesztiválon</span>  vállalt munkánkért?</h1>
 
     <div class="timer" role="timer" aria-label="Eltelt idő fizetés nélkül">
       <div class="unit days">
@@ -280,7 +300,15 @@
   const pad   = (n, len) => String(n).padStart(len || 2, "0");
   const huNum = (n) => n.toLocaleString("hu-HU");
 
-  let lastSecond = null;
+  // Segédfüggvény: frissíti a szöveget ÉS lejátssza az áttűnés animációt, ha változott
+  function updateEl(el, val) {
+    if (el.textContent !== val) {
+      el.textContent = val;
+      el.classList.remove("fade-in");
+      void el.offsetWidth;   // Kényszerítjük a böngészőt, hogy újraindítsa az animációt
+      el.classList.add("fade-in");
+    }
+  }
 
   function render() {
     const diff = Math.max(0, Date.now() - START.getTime());
@@ -291,23 +319,17 @@
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
 
-    el.days.textContent    = String(days);
-    el.hours.textContent   = pad(hours);
-    el.minutes.textContent = pad(minutes);
-    el.seconds.textContent = pad(seconds);
+    // Az összes szám frissítése áttűnéssel
+    updateEl(el.days, String(days));
+    updateEl(el.hours, pad(hours));
+    updateEl(el.minutes, pad(minutes));
+    updateEl(el.seconds, pad(seconds));
 
     el.timer.dataset.digits = String(days).length;
 
     el.total.textContent =
       "Összesen " + huNum(totalSeconds) + " másodperc · " +
       huNum(Math.floor(totalSeconds / 3600)) + " óra";
-
-    if (lastSecond !== null && seconds !== lastSecond) {
-      el.seconds.classList.remove("tick");
-      void el.seconds.offsetWidth;   // animáció újraindítása
-      el.seconds.classList.add("tick");
-    }
-    lastSecond = seconds;
   }
 
   // másodperc-határra igazított frissítés (nincs elsodródás)
