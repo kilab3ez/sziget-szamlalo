@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mennyi ideje nem kaptunk fizetést? · Sziget Fesztivál</title>
+<meta name="description" content="Élő számláló: mennyi ideje nem kaptunk fizetést a Sziget Fesztiválon vállalt munkánkért." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@500;700&display=swap" rel="stylesheet" />
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --pink:   #ff2d95;
+    --cyan:   #00e5ff;
+    --yellow: #ffe600;
+    --green:  #3dff9a;
+    --line:   rgba(255, 255, 255, .14);
+    --card:   rgba(255, 255, 255, .045);
+  }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    position: relative;
+    isolation: isolate;
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(1.2rem, 4vw, 3rem);
+    background: #07060c;
+    color: #fff;
+    font-family: 'Anton', Impact, 'Arial Narrow', sans-serif;
+    text-align: center;
+    overflow-x: hidden;
+  }
+
+  /* —— neon fények a háttérben —— */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: -30%;
+    z-index: -2;
+    background:
+      radial-gradient(38% 38% at 18% 22%, rgba(255, 45, 149, .55), transparent 70%),
+      radial-gradient(38% 38% at 82% 26%, rgba(0, 229, 255, .42), transparent 70%),
+      radial-gradient(45% 45% at 50% 92%, rgba(255, 230, 0, .22), transparent 70%);
+    filter: blur(30px);
+    animation: drift 22s ease-in-out infinite alternate;
+  }
+
+  /* —— vignetta —— */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: radial-gradient(120% 90% at 50% 50%, transparent 45%, rgba(0, 0, 0, .7) 100%);
+  }
+
+  @keyframes drift {
+    from { transform: translate3d(-3%, -2%, 0) scale(1); }
+    to   { transform: translate3d(3%, 3%, 0) scale(1.12); }
+  }
+
+  main {
+    width: 100%;
+    max-width: 1500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(1rem, 3vh, 2.2rem);
+  }
+
+  /* —— felső badge —— */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .7em;
+    padding: .75em 1.4em;
+    border: 2px solid var(--line);
+    border-radius: 999px;
+    background: var(--card);
+    backdrop-filter: blur(8px);
+    font-family: 'Archivo', system-ui, sans-serif;
+    font-weight: 700;
+    font-size: clamp(.6rem, 1.5vw, .95rem);
+    letter-spacing: .24em;
+    text-transform: uppercase;
+    color: #ffd6ea;
+  }
+
+  .dot {
+    width: .65em;
+    height: .65em;
+    border-radius: 50%;
+    background: var(--pink);
+    box-shadow: 0 0 14px var(--pink);
+    animation: blink 1.5s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1;   transform: scale(1); }
+    50%      { opacity: .3;  transform: scale(.75); }
+  }
+
+  /* —— főcím —— */
+  h1 {
+    max-width: 22ch;
+    font-weight: 400;
+    font-size: clamp(1.5rem, 4.6vw, 4rem);
+    line-height: .98;
+    letter-spacing: -.005em;
+    text-transform: uppercase;
+    text-wrap: balance;
+    background: linear-gradient(180deg, #ffffff 0%, #ffd9ee 55%, #ff2d95 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 0 28px rgba(255, 45, 149, .45));
+  }
+
+  /* —— számláló rács —— */
+  .timer {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(.45rem, 1.4vw, 1.4rem);
+  }
+
+  .unit {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(.9rem, 2.6vw, 2.2rem) clamp(.3rem, 1vw, 1rem);
+    border: 2px solid var(--line);
+    border-radius: clamp(.7rem, 1.6vw, 1.5rem);
+    background: linear-gradient(180deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .02));
+    backdrop-filter: blur(10px);
+  }
+
+  .unit::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 4px;
+    background: var(--accent);
+    box-shadow: 0 0 22px var(--accent);
+  }
+
+  .days    { --accent: var(--pink);   --glow: rgba(255, 45, 149, .55); }
+  .hours   { --accent: var(--cyan);   --glow: rgba(0, 229, 255, .50); }
+  .minutes { --accent: var(--yellow); --glow: rgba(255, 230, 0, .45); }
+  .seconds { --accent: var(--green);  --glow: rgba(61, 255, 154, .45); }
+
+  .num {
+    display: block;
+    font-size: clamp(2.2rem, 10.5vw, 8rem);
+    line-height: .88;
+    letter-spacing: -.03em;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+    color: #fff;
+    text-shadow: 0 0 24px var(--glow), 0 0 70px var(--glow);
+  }
+
+  .num.tick { animation: tick .35s ease-out; }
+
+  @keyframes tick {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.12); }
+    100% { transform: scale(1); }
+  }
+
+  .label {
+    display: block;
+    margin-top: clamp(.5rem, 1.4vw, 1rem);
+    font-family: 'Archivo', system-ui, sans-serif;
+    font-weight: 700;
+    font-size: clamp(.55rem, 1.5vw, 1rem);
+    letter-spacing: .3em;
+    text-indent: .3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    text-shadow: 0 0 18px var(--glow);
+  }
+
+  /* —— alsó infók —— */
+  .meta {
+    font-family: 'Archivo', system-ui, sans-serif;
+    font-weight: 500;
+    font-size: clamp(.7rem, 1.6vw, 1rem);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, .6);
+  }
+
+  .meta.dim { color: rgba(255, 255, 255, .35); }
+
+  /* hosszú számok kezelése */
+  .timer[data-digits="4"] .num { font-size: clamp(1.5rem, 7vw, 5.5rem); }
+  .timer[data-digits="5"] .num { font-size: clamp(1.2rem, 5.5vw, 4rem); }
+
+  /* —— mobil: 2×2 —— */
+  @media (max-width: 640px) {
+    .timer { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .num   { font-size: clamp(2.6rem, 16vw, 4.5rem); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+
+<body>
+  <main>
+    <span class="badge"><span class="dot"></span>Még mindig nem fizettek</span>
+
+    <h1>Mennyi ideje nem kaptunk fizetést a Sziget&nbsp;Fesztiválon vállalt munkánkért?</h1>
+
+    <div class="timer" role="timer" aria-label="Eltelt idő fizetés nélkül">
+      <div class="unit days">
+        <span class="num" id="days">0</span>
+        <span class="label">Nap</span>
+      </div>
+      <div class="unit hours">
+        <span class="num" id="hours">00</span>
+        <span class="label">Óra</span>
+      </div>
+      <div class="unit minutes">
+        <span class="num" id="minutes">00</span>
+        <span class="label">Perc</span>
+      </div>
+      <div class="unit seconds">
+        <span class="num" id="seconds">00</span>
+        <span class="label">Másodperc</span>
+      </div>
+    </div>
+
+    <p class="meta" id="total"></p>
+    <p class="meta dim" id="start"></p>
+  </main>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ==========================================================
+     ⚙️  ITT ÁLLÍTHATÓ A KEZDŐ IDŐPONT
+     Alapból a legutóbbi augusztus 16. 04:00, ami már elmúlt.
+     Ha fix dátumot akarsz, írd át erre (hónap 0-alapú!):
+        const START = new Date(2025, 7, 16, 4, 0, 0);
+  ========================================================== */
+  const START = (function () {
+    const now = new Date();
+    const y = now.getFullYear();
+    let d = new Date(y, 7, 16, 4, 0, 0, 0);           // augusztus = 7
+    if (d.getTime() > now.getTime()) {
+      d = new Date(y - 1, 7, 16, 4, 0, 0, 0);
+    }
+    return d;
+  })();
+  /* ========================================================== */
+
+  const el = {
+    timer:   document.querySelector(".timer"),
+    days:    document.getElementById("days"),
+    hours:   document.getElementById("hours"),
+    minutes: document.getElementById("minutes"),
+    seconds: document.getElementById("seconds"),
+    total:   document.getElementById("total"),
+    start:   document.getElementById("start")
+  };
+
+  const pad   = (n, len) => String(n).padStart(len || 2, "0");
+  const huNum = (n) => n.toLocaleString("hu-HU");
+
+  let lastSecond = null;
+
+  function render() {
+    const diff = Math.max(0, Date.now() - START.getTime());
+    const totalSeconds = Math.floor(diff / 1000);
+
+    const days    = Math.floor(totalSeconds / 86400);
+    const hours   = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    el.days.textContent    = String(days);
+    el.hours.textContent   = pad(hours);
+    el.minutes.textContent = pad(minutes);
+    el.seconds.textContent = pad(seconds);
+
+    el.timer.dataset.digits = String(days).length;
+
+    el.total.textContent =
+      "Összesen " + huNum(totalSeconds) + " másodperc · " +
+      huNum(Math.floor(totalSeconds / 3600)) + " óra";
+
+    if (lastSecond !== null && seconds !== lastSecond) {
+      el.seconds.classList.remove("tick");
+      void el.seconds.offsetWidth;   // animáció újraindítása
+      el.seconds.classList.add("tick");
+    }
+    lastSecond = seconds;
+  }
+
+  // másodperc-határra igazított frissítés (nincs elsodródás)
+  function loop() {
+    render();
+    setTimeout(loop, 1000 - (Date.now() % 1000));
+  }
+
+  const fmt = new Intl.DateTimeFormat("hu-HU", {
+    year: "numeric", month: "long", day: "numeric",
+    hour: "2-digit", minute: "2-digit"
+  });
+  el.start.textContent = "Számolás kezdete: " + fmt.format(START);
+
+  loop();
+})();
+</script>
+</body>
+</html>
